@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Typing Speed Test — UI</title>
+  <style>
+    ,::before,*::after{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      background: linear-gradient(180deg,#0f172a 0%, #071023 100%);
+      color:#e6eef8;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:32px;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+    }
+    .typing-app{
+      width:100%;
+      max-width:920px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.02));
+      border:1px solid rgba(255,255,255,0.06);
+      border-radius:14px;
+      padding:28px;
+      box-shadow:0 8px 30px rgba(2,6,23,0.7);
+    }
+    .app-header{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:16px;
+    }
+    .title{
+      font-size:20px;
+      font-weight:600;
+      letter-spacing:0.2px;
+      margin:0;
+    }
+    .controls{
+      display:flex;
+      gap:8px;
+      align-items:center;
+    }
+    .btn{
+      background:transparent;
+      color:inherit;
+      border:1px solid rgba(230,238,248,0.08);
+      padding:8px 12px;
+      border-radius:10px;
+      font-weight:600;
+      cursor:pointer;
+      transition:transform .12s ease, background .12s ease, border-color .12s ease;
+    }
+    .btn:active{transform:translateY(1px)}
+    .btn.primary{
+      background:linear-gradient(90deg,#4f7cff,#29c0ff);
+      color:#041022;
+      border:none;
+      box-shadow:0 6px 18px rgba(47,127,255,0.16);
+    }
+    .btn.ghost{
+      background:transparent;
+      border:1px dashed rgba(255,255,255,0.04);
+    }
+    .stats{
+      display:flex;
+      gap:12px;
+      margin-top:18px;
+      align-items:center;
+      flex-wrap:wrap;
+    }
+    .stat{
+      background:rgba(255,255,255,0.02);
+      padding:10px 14px;
+      border-radius:10px;
+      min-width:120px;
+      text-align:center;
+    }
+    .stat strong{display:block;font-size:18px}
+    .stat small{display:block;color:rgba(230,238,248,0.6);margin-top:4px}
+    .test-area{
+      margin-top:20px;
+      display:grid;
+      grid-template-columns: 1fr 340px;
+      gap:18px;
+    }
+    .sample{
+      background: linear-gradient(180deg, rgba(255,255,255,0.015), rgba(255,255,255,0.01));
+      border-radius:12px;
+      padding:18px;
+      border:1px solid rgba(255,255,255,0.03);
+      min-height:180px;
+      overflow:auto;
+      line-height:1.75;
+      font-size:16px;
+      color:#dbeefe;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.01);
+    }
+    .sample .word{padding-right:6px; border-radius:4px}
+    .word.correct{background:rgba(40,200,120,0.12); color:#bff2d1}
+    .word.incorrect{background:rgba(255,80,80,0.07); color:#ffd4d4}
+    .word.current{outline:2px solid rgba(255,255,255,0.04); background:rgba(255,255,255,0.01)}
+    .input-card{
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+      align-items:stretch;
+    }
+    .type-input{
+      background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.008));
+      border-radius:10px;
+      padding:14px;
+      min-height:110px;
+      border:1px solid rgba(255,255,255,0.03);
+      color:#e6eef8;
+      font-size:16px;
+      line-height:1.5;
+      outline:none;
+      resize:none;
+      overflow:auto;
+    }
+    .type-input[contenteditable="true"]{
+      caret-color:#29c0ff;
+    }
+    .hints{
+      font-size:13px;
+      color:rgba(230,238,248,0.6);
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+    .help{
+      margin-top:18px;
+      font-size:13px;
+      color:rgba(230,238,248,0.55);
+    }
+    @media (max-width:860px){
+      .test-area{grid-template-columns:1fr;}
+      .input-card{order:2}
+    }
+  </style>
+</head>
+<body>
+  <main class="typing-app" role="main" aria-labelledby="app-title">
+    <header class="app-header">
+      <h1 id="app-title" class="title">Typing Speed Test</h1>
+      <div class="controls">
+        <button class="btn primary" id="startBtn" data-action="start">Start Test</button>
+        <button class="btn" id="resetBtn" data-action="reset">Reset</button>
+        <button class="btn ghost" id="modeBtn" data-action="mode">Switch Mode</button>
+      </div>
+    </header>
+    <section class="stats">
+      <div class="stat">
+        <strong id="wpm">0</strong>
+        <small>WPM</small>
+      </div>
+      <div class="stat">
+        <strong id="accuracy">100%</strong>
+        <small>Accuracy</small>
+      </div>
+      <div class="stat">
+        <strong id="time">60s</strong>
+        <small>Time</small>
+      </div>
+      <div class="stat">
+        <strong id="typed">0</strong>
+        <small>Characters</small>
+      </div>
+    </section>
+    <section class="test-area">
+      <article class="sample" id="sampleText">
+      
+        <br><br>
+        <span class="word">Practice</span>
+        <span class="word">typing</span>
+        <span class="word">to</span>
+        <span class="word">improve</span>
+        <span class="word">accuracy</span>
+        <span class="word">and</span>
+        <span class="word">speed.</span>
+      </article>
+      <aside class="input-card">
+        <div id="typeInput" class="type-input" contenteditable="true" spellcheck="false" role="textbox" aria-multiline="true" aria-label="Type here">
+          </span>
+          <span></span>
+        </div>
+        <div class="help">
+          This is the UI only.
+        </div>
+      </aside>
+    </section>
+  </main>
+</body>
+</html>
